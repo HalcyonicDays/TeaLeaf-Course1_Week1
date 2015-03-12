@@ -38,6 +38,23 @@ def easy_ai_move(moves_hash)       # This AI makes moves at random from a list o
   make_move(available_moves.sample, :comp, moves_hash) unless available_moves == []
 end
 
+def defensive_ai(moves_hash)
+  victory_combinations ||= %w(123 456 789 147 258 369 159 357)  
+  available_moves = moves_hash.select { |key, val| val == " " }.keys    
+  users_moves     = moves_hash.select { |key, val| val == "X" }.keys
+  defensive_moves = []
+  users_victories = victory_combinations.select do |elm|
+    count = 0
+    users_moves.each do |move| 
+      count += 1 if elm.include?(move.to_s)
+      elm.gsub!(move.to_s,"")
+    end
+    defensive_moves << elm.to_i if count == 2
+    defensive_moves.select! { |elm| available_moves.include?(elm)}
+  end
+  defensive_moves.size > 0 ? make_move(defensive_moves.sample, :comp, moves_hash) : make_move(available_moves.sample, :comp, moves_hash)
+end
+
 def make_move(move, desig, moves_hash)       # this assigns the move to appropriate hash location, and checks if either player has won.
   available_moves = moves_hash.select { |key, val| val == " " }.keys
   if available_moves.include?(move)
@@ -64,6 +81,7 @@ def game_won(moves_hash, most_recent_move)
   available_moves = moves_hash.select { |key, val| val == " " }.keys
   available_moves.each { |key| moves_hash[key] = "˙"}
   puts "The game is won!  Congratulations to #{moves_hash[most_recent_move]}!"
+  draw_grid(moves_hash)
 end
 
 ##########################################################################
@@ -76,14 +94,29 @@ while answer == "y"
   draw_grid(moves_hash)
   while moves_remain?(moves_hash)
     users_move(moves_hash) unless !moves_remain?(moves_hash)
-    easy_ai_move(moves_hash) unless !moves_remain?(moves_hash)
+    #easy_ai_move(moves_hash) unless !moves_remain?(moves_hash)
+    defensive_ai(moves_hash) unless !moves_remain?(moves_hash)
   end
   puts "Would you like to play again? (Y / N)"
   answer = gets.chomp.downcase
 end
 
 
+##########################################################################
+############################## Future Work ###############################
 
-
-
-
+def defensive_ai(moves_hash)
+  victory_combinations ||= %w(123 456 789 147 258 369 159 357)  
+  available_moves = moves_hash.select { |key, val| val == " " }.keys    
+  users_moves     = moves_hash.select { |key, val| val == "X" }.keys
+  defensive_moves = []
+  users_victories = victory_combinations.select do |elm|
+    count = 0
+    users_moves.each do |move| 
+      count += 1 if elm.include?(move.to_s)
+      elm.gsub!(move.to_s,"")
+    end
+    defensive_moves << elm.to_i if count == 2
+  end
+  defensive_moves.size > 0 ? make_move(defensive_moves.sample, :comp, moves_hash) : make_move(available_moves.sample, :comp, moves_hash)
+end

@@ -4,6 +4,7 @@
 # If the key is not empty, the computer asks for a different move to be made.
 # A test is performed to see if victory has been achived and the grid is redrawn.
 # ........ plans for an AI go here.  Otherwise, a move will be made to a random empty hash......
+# Update: A defensive AI has been added.  It sees if the player is 1 away from winning and plays to block that win 
 # A test is performed to see if victory has been achived and the grid is redrawn.
 # Play continues so long as there is an empty hash value.  Once there are none, a tie is declared (since a victory would have been declared otherwise)
 # ∆(j) ø(o) §(6) (K) ◊(V) ˙(h)
@@ -34,7 +35,6 @@ end
 
 def easy_ai_move(moves_hash)       # This AI makes moves at random from a list of available spaces.
   available_moves = moves_hash.select { |key, val| val == " " }.keys
-  puts "This game is a draw." if available_moves == []
   make_move(available_moves.sample, :comp, moves_hash) unless available_moves == []
 end
 
@@ -64,7 +64,11 @@ def make_move(move, desig, moves_hash)       # this assigns the move to appropri
     draw_grid(moves_hash)
     users_move(moves_hash)
   end
-  victory?(moves_hash, move) ? game_won(moves_hash, move) : draw_grid(moves_hash)
+  if moves_remain?(moves_hash) 
+    victory?(moves_hash, move) ? game_won(moves_hash, move) : draw_grid(moves_hash)
+  else
+    victory?(moves_hash, move) ? game_won(moves_hash, move) : (draw_grid(moves_hash); puts "This game is a draw.")
+  end
 end
 
 def victory?(moves_hash, most_recent_move)
@@ -97,26 +101,7 @@ while answer == "y"
     #easy_ai_move(moves_hash) unless !moves_remain?(moves_hash)
     defensive_ai(moves_hash) unless !moves_remain?(moves_hash)
   end
+
   puts "Would you like to play again? (Y / N)"
   answer = gets.chomp.downcase
-end
-
-
-##########################################################################
-############################## Future Work ###############################
-
-def defensive_ai(moves_hash)
-  victory_combinations ||= %w(123 456 789 147 258 369 159 357)  
-  available_moves = moves_hash.select { |key, val| val == " " }.keys    
-  users_moves     = moves_hash.select { |key, val| val == "X" }.keys
-  defensive_moves = []
-  users_victories = victory_combinations.select do |elm|
-    count = 0
-    users_moves.each do |move| 
-      count += 1 if elm.include?(move.to_s)
-      elm.gsub!(move.to_s,"")
-    end
-    defensive_moves << elm.to_i if count == 2
-  end
-  defensive_moves.size > 0 ? make_move(defensive_moves.sample, :comp, moves_hash) : make_move(available_moves.sample, :comp, moves_hash)
 end

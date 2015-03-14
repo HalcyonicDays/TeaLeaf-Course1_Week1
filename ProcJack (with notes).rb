@@ -1,3 +1,4 @@
+#!usr/local/bin/ruby
 # Requirements:
 # - Player and Dealer both try to attain 21.
 # - Numbered cards are worth their value.  Faces cards are worth 10.  Ace can be worth 1 or 11.
@@ -67,7 +68,10 @@ def calculate_score(user)
     point_total += 10 if elm[0].to_i == 0 unless elm[0] == "Ace"      # Add 10 for non-Ace non-numeric cards
   end
   point_total += total_aces                                       # Add 1 for each Ace.
-  (point_total + 10) > 21  ? point_total : point_total += 10      # Add an additional 0 or 10 for just one Ace.
+  if total_aces >= 1
+    (point_total + 10) > 21  ? point_total : point_total += 10      # Add an additional 0 or 10 for just one Ace.
+  end
+  point_total
 end
 
 def choice_validation_loop
@@ -148,7 +152,7 @@ end
 
 puts "would you like to play again? (Y / N)"
 answer = gets.chomp.downcase[0] 
-exec 'ruby', 'ProcJack.rb' if answer == "y"
+exec 'ruby', 'ProcJack.rb' if answer == "y" && File.exists?('ProcJack.rb')
 puts "Thanks for playing procedural Blackjack." if answer != "y"
 
 # Bonus items:

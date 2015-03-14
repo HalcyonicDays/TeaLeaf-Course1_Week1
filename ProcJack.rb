@@ -1,4 +1,4 @@
-
+#!/usr/local/bin/ruby
 NUMBER_OF_DECKS = 2
 CARD_VALUES = "2, 3, 4, 5, 6, 7, 8, 9, 10, Jack, Queen, King, Ace" 
 SUITS = "Hearts, Diamonds, Clubs, Spades"

@@ -34,7 +34,10 @@ def calculate_score(user)
     point_total += 10 if elm[0].to_i == 0 unless elm[0] == "Ace"      # Add 10 for non-Ace non-numeric cards
   end
   point_total += total_aces                                       # Add 1 for each Ace.
-  (point_total + 10) > 21  ? point_total : point_total += 10      # Add an additional 0 or 10 for just one Ace.
+  if total_aces >= 1
+    (point_total + 10) > 21  ? point_total : point_total += 10      # Add an additional 0 or 10 for just one Ace.
+  end
+  point_total
 end
 
 def choice_validation_loop          
@@ -77,14 +80,14 @@ if blackjack?(player) || blackjack?(dealer)
   puts "Computer opponent has a blackjack. Tough luck." if blackjack?(dealer)
   puts "Double-Blackjack! What are the odds!? (0.07%)" if blackjack?(player) && blackjack?(dealer)
 else
-  puts "\nYou are showing a total of #{calculate_score(player)}."
+  puts "\nYou have a total of #{calculate_score(player)}."
   puts "\nThe dealer is showing a(n) #{dealer.last[0]} of #{dealer.last[1]}. \n"
   hit_or_stay = choice_validation_loop
 
   while hit_or_stay == "h"
     dealt_card(deck, player)
     puts "You've drawn a(n) #{player.last[0]} of #{player.last[1]}"
-    puts "You're now showing a total of #{calculate_score(player)}."
+    puts "You now have a total of #{calculate_score(player)}."
     if bust?(player)
       puts "You've busted!"
       hit_or_stay = "s" 
@@ -115,5 +118,5 @@ end
 
 puts "would you like to play again? (Y / N)"
 answer = gets.chomp.downcase[0] 
-exec 'ruby', 'ProcJack.rb' if answer == "y"
+exec 'ruby', 'ProcJack.rb' if answer == "y" && File.exists?('ProcJack.rb')
 puts "Thanks for playing procedural Blackjack." if answer != "y"

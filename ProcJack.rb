@@ -21,21 +21,21 @@ def reset_deck_suited(deck)
   deck.shuffle!
 end
 
-def dealt_card(deck, user)
-  user << deck.pop
+def dealt_card(deck, users_hand)
+  users_hand << deck.pop
 end
 
-def calculate_score(user)
+def calculate_score(users_hand)
   point_total = 0
   total_aces = 0
-  user.each {|elm| total_aces+= elm.count("Ace")}                     # Count the total number of Aces because Aces are tricky.
-  user.each do |elm|
-    point_total += elm[0].to_i unless elm[0].to_i == 0                # Add numeric value to score
-    point_total += 10 if elm[0].to_i == 0 unless elm[0] == "Ace"      # Add 10 for non-Ace non-numeric cards
+  users_hand.each {|card| total_aces += card.count("A")}                # Count the total number of Aces because Aces are tricky.
+  users_hand.each do |card|
+    point_total += card[0].to_i unless card[0].to_i == 0                # Add numeric value to score
+    point_total += 10 if card[0].to_i == 0 unless card[0] == "Ace"      # Add 10 for non-Ace non-numeric cards
   end
-  point_total += total_aces                                       # Add 1 for each Ace.
+  point_total += total_aces                                           # Add 1 for each Ace.
   if total_aces >= 1
-    (point_total + 10) > 21  ? point_total : point_total += 10      # Add an additional 0 or 10 for just one Ace.
+    (point_total + 10) > 21  ? point_total : point_total += 10        # Add an additional 0 or 10 for just one Ace.
   end
   point_total
 end
@@ -43,7 +43,7 @@ end
 def choice_validation_loop          
   puts "Would you like to hit or stay? (H)it / (S)tay."
   choice = gets.chomp[0].downcase 
-  until choice == "h" || choice ==  "s"
+  until ["h", "s"].include?(choice)
     puts "I didn't understand. Would you like to hit or stay? (H)it / (S)tay."
     choice = gets.chomp[0].downcase 
   end
@@ -62,17 +62,20 @@ def dealer_actions(deck, player, dealer)
 end
 
 def bust?(user)
-  calculate_score(user)>21
+  calculate_score(user) > 21
 end
 
 def blackjack?(user )
   calculate_score(user) == 21
 end
-##############################################################################################################
+
 system 'clear'
 reset_deck_suited(deck)
 
-2.times {dealt_card(deck, player); puts "You've drawn a(n) #{player.last[0]} of #{player.last[1]}"}
+2.times do 
+  dealt_card(deck, player)
+  puts "You've drawn a(n) #{player.last[0]} of #{player.last[1]}"}
+end
 2.times {dealt_card(deck, dealer)}
 
 if blackjack?(player) || blackjack?(dealer)
@@ -89,7 +92,7 @@ else
     puts "You've drawn a(n) #{player.last[0]} of #{player.last[1]}"
     puts "You now have a total of #{calculate_score(player)}."
     if bust?(player)
-      puts "You've busted!"
+      puts "You've busted, so the dealer wins with #{calculate_score(dealer)}!"
       hit_or_stay = "s" 
     elsif blackjack?(player)
       puts "You've hit 21. Let's stop for now."
@@ -100,8 +103,6 @@ else
   end
 
   puts "You have a final score of #{calculate_score(player)}." unless bust?(player)
-  puts "You've busted, so the dealer wins with #{calculate_score(dealer)}!" if bust?(player)
-
   dealer_actions(deck, player, dealer) unless bust?(player) 
   puts "The dealer has busted at #{calculate_score(dealer)}! You win with #{calculate_score(player)}!" if bust?(dealer)
 
